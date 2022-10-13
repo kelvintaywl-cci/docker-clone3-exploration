@@ -1,0 +1,47 @@
+version: 2.1
+
+parameters:
+  docker-img:
+    type: string
+    # alias for cimg/base:current-22.04
+    default: cimg/base:current
+
+executors:
+  default:
+    resource_class: small
+    docker:
+      - image: << pipeline.parameters.docker-img >>
+
+commands:
+  inspect:
+    parameters:
+      docker-version:
+        type: string
+        default: ''
+    steps:
+      - when:
+          condition: << parameters.docker-version >>
+          steps:
+            - setup_remote_docker:
+                version: << parameters.docker-version >>
+      - unless:
+          condition: << parameters.docker-version >>
+          steps:
+            # default; no version specified
+            - setup_remote_docker
+      - run:
+          name: check Ubuntu version
+          command: |
+            lsb_release -d
+      - checkout
+
+jobs:
+  build:
+    parameters:
+      docker-version:
+        type: string
+        default: ''
+    executor: default
+    steps:
+      - inspect:
+          docker-version: << parameters.docker-version >>
