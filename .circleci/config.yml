@@ -36,7 +36,7 @@ commands:
       - checkout
 
 jobs:
-  build:
+  inspect:
     parameters:
       docker-version:
         type: string
@@ -45,3 +45,15 @@ jobs:
     steps:
       - inspect:
           docker-version: << parameters.docker-version >>
+
+workflows:
+  inspect:
+    jobs:
+      - inspect:
+          matrix:
+            parameters:
+              docker-version:
+                - ''
+                - '20.10.14'
+                - '20.10.7'
+                - '19.03.13'
